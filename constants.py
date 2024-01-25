@@ -1,20 +1,30 @@
 import numpy as np
+import jax.numpy as jnp
 
 # Epoch and timesteps
-epochs = 4
-timesteps = 10
+epochs = 100
+timesteps = 1000
+
+
+# Loss function - MSE
+def MSE(model_function, X, w, y_true):
+    y_pred = model_function(X, w)
+    return jnp.mean((y_pred - y_true) ** 2)
+
 
 # Controller functions and parameters
 # Generic Model of a standard 3-parameter PID Controller
-# TODO: implement learning rate
+learning_rate = 0.001
 classic_init_param = 0.1, 0.01, 0.001
 
 
-def classic_function(error_history, parameters):
-    k_p, k_i, k_d = parameters
+def classic_function(X, w):
+    error_history = X
+    k_p, k_i, k_d = w
     dE_dt = error_history[-1] - error_history[-2]
     E = error_history[-1]
-    U = k_p * E + k_d * dE_dt + k_i * sum(error_history)
+    sum_E = jnp.sum(error_history)
+    U = k_p * E + k_d * dE_dt + k_i * sum_E
     return U
 
 

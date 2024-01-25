@@ -3,7 +3,7 @@ class Plant(object):
         self.state_function = state_function  # Function either function for H or P_1
         self.state = None  # State either H or P_1
 
-    def reset(self):
+    def reset_state(self):
         self.state = None
 
     def update(self, U, D):

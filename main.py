@@ -1,7 +1,9 @@
+import matplotlib.pyplot as plt
+
 import constants
+from consys import Consys
 from controller import Controller
 from plant import Plant
-from consys import Consys
 
 if __name__ == '__main__':
     classicPID = Controller(constants.classic_function, constants.classic_init_param)
@@ -10,9 +12,35 @@ if __name__ == '__main__':
     # Bathtub problem
     bathtub = Plant(constants.bathtub_function)
     consys_bathtub = Consys(bathtub, classicPID, constants.T_bathtub)
-    optimal_U_bathtub, optimal_Y_bathtub, final_error_bathtub = consys_bathtub.simulate(constants.epochs, constants.timesteps)
+    optimal_U_bathtub, optimal_Y_bathtub, mse_history, params_history = consys_bathtub.simulate(constants.epochs, constants.timesteps)
+
+    plt.plot(mse_history)
+    plt.xlabel('Epoch')
+    plt.ylabel('MSE')
+    plt.title('Learning Progression')
+    plt.legend()
+    plt.show()
+
+    plt.plot(params_history)
+    plt.xlabel('Epoch')
+    plt.ylabel('Y')
+    plt.title('Control Parameters')
+    plt.show()
 
     # Cournot problem
     cournot = Plant(constants.cournot_function)
     consys_cournot = Consys(cournot, classicPID, constants.T_cournot)
     optimal_U_cournot, optimal_Y_cournot, final_error_cournot = consys_bathtub.simulate(constants.epochs, constants.timesteps)
+
+    plt.plot(mse_history)
+    plt.xlabel('Epoch')
+    plt.ylabel('MSE')
+    plt.title('Learning Progression')
+    plt.legend()
+    plt.show()
+
+    plt.plot(params_history)
+    plt.xlabel('Epoch')
+    plt.ylabel('Y')
+    plt.title('Control Parameters')
+    plt.show()
