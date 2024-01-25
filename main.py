@@ -32,6 +32,8 @@ if __name__ == '__main__':
     consys_cournot = Consys(cournot, classicPID, constants.T_cournot)
     optimal_U_cournot, optimal_Y_cournot, final_error_cournot = consys_bathtub.simulate(constants.epochs, constants.timesteps)
 
+    # TODO: Check if better visuals method
+
     plt.plot(mse_history)
     plt.xlabel('Epoch')
     plt.ylabel('MSE')

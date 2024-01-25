@@ -23,5 +23,3 @@ class Controller:
         self.error_history.append(error)
         U = self.controller_function(self.error_history, self.parameters)
         return U
-
-# TODO: improve parameters using JAX

@@ -72,4 +72,6 @@ class Consys:
             self.controller.update_params(gradients)
             self.params_history.append(self.controller.params)
 
+            # TODO: Check if correct MSE computing and gradient descent
+
         return U, Y, self.mse_history, self.params_history
