@@ -1,5 +1,4 @@
-import jax
-import numpy as np
+import jax.numpy as jnp
 
 
 class Controller:
@@ -8,18 +7,18 @@ class Controller:
         self.initial_parameters = initial_parameters
         self.parameters = initial_parameters
         self.learning_rate = learning_rate
-        self.error_history = []
+        self.error_history = jnp.array([])
 
     def reset_parameters(self):
         self.parameters = self.initial_parameters
 
     def reset_error_history(self):
-        self.error_history = []
+        self.error_history = jnp.array([])
 
     def update_params(self, gradients):
-        self.parameters -= self.learning_rate * gradients
+        self.parameters -= jnp.multiply(self.learning_rate, gradients)
 
     def update(self, error):
-        self.error_history.append(error)
+        self.error_history = jnp.append(self.error_history, error)
         U = self.controller_function(self.error_history, self.parameters)
         return U

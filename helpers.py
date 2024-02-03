@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def noise():
-    return np.random
-
-# TODO: Implement range of noise, the range should be configured in constants
+def noise(noise_range, noise_dim):
+    lower_bound, upper_bound = noise_range
+    noise = np.random.uniform(low=lower_bound, high=upper_bound, size=noise_dim)
+    return noise
