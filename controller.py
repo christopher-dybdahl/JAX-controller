@@ -1,13 +1,13 @@
+from abc import abstractmethod
+
 import jax.numpy as jnp
 
 
 class Controller:
-    def __init__(self, controller_function, initial_parameters, learning_rate):
-        self.controller_function = controller_function
+    def __init__(self, initial_parameters):
         self.initial_parameters = initial_parameters
         self.parameters = initial_parameters
-        self.learning_rate = learning_rate
-        self.error_history = jnp.array([])
+        self.error_history = None
 
     def get_parameters(self):
         return self.parameters
@@ -21,11 +21,10 @@ class Controller:
     def reset_error_history(self):
         self.error_history = jnp.array([])
 
+    @abstractmethod
     def update_params(self, gradients):
-        # Gradient descent
-        self.parameters -= jnp.multiply(self.learning_rate, gradients)
+        pass
 
+    @abstractmethod
     def update(self, parameters, error):
-        self.error_history = jnp.append(self.error_history, error)
-        U = self.controller_function(self.error_history, parameters)
-        return U
+        pass

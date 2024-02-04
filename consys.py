@@ -1,7 +1,7 @@
+import matplotlib.pyplot as plt
 from jax import jit, value_and_grad
 
 from helpers import noise
-import matplotlib.pyplot as plt
 
 
 def standard_eval(state):
@@ -38,7 +38,6 @@ class Consys:
         self.reset_controller_plant()
 
         # Initialize gradient function with jax
-        #  TODO: Jit
         gradient_function = jit(value_and_grad(self._run_one_epoch, argnums=0))
 
         for epoch in range(self.epochs):
@@ -55,12 +54,11 @@ class Consys:
             # Record error
             self.loss_history.append(loss)
 
-            # Update controller parameters using gradient descent
+            # Update controller parameters
             self.controller.update_params(gradients)
-            print(f"Controller parameters: {self.controller.parameters}")
-            self.params_history.append(self.controller.get_parameters())
 
-        return self
+            # Record parameters
+            self.params_history.append(self.controller.get_parameters())
 
     def _run_one_epoch(self, parameters, D, U_init):
 
@@ -75,16 +73,17 @@ class Consys:
 
         return loss
 
-    def print_mse_history(self):
+    def print_mse_history(self, title):
+        plt.yscale("log")
         plt.plot(self.loss_history)
         plt.xlabel('Epoch')
         plt.ylabel('MSE')
-        plt.title('Learning Progression')
+        plt.title(f'Learning Progression - {title}')
         plt.show()
 
-    def print_parameter_history(self):
+    def print_parameter_history(self, title):
         plt.plot(self.params_history)
         plt.xlabel('Epoch')
         plt.ylabel('Y')
-        plt.title('Control Parameters')
+        plt.title(f'Control Parameters - {title}')
         plt.show()

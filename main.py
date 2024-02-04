@@ -1,31 +1,54 @@
-import matplotlib.pyplot as plt
-
 import constants
 from consys import Consys
-from controller import Controller
+from helpers import MSE
+from neural_net_controller import Neural_net_controller
+from pid_controller import Classic_controller
 from plant import Plant
 
-
 if __name__ == '__main__':
-    classicPID = Controller(constants.classic_function, constants.classic_init_param, constants.learning_rate)
-    # TODO: Solve problems with neural net PID controller
+    # Initialize PID controllers
+    classicPID = Classic_controller(constants.classic_init_param, constants.input_processor, constants.learning_rate)
+    neuralnetPID = Neural_net_controller(constants.input_processor, constants.learning_rate, constants.layers,
+                                         constants.activation_functions)
 
-    # Bathtub problem
-    # bathtub = Plant(constants.bathtub_function, constants.H_0_bathtub)
-    # consys_bathtub = Consys(bathtub, classicPID, constants.T_bathtub, constants.MSE)
-    # consys_bathtub.simulate(constants.epochs,
-    #                         constants.timesteps,
-    #                         constants.noise_range,
-    #                         constants.U_bathtub_init)
-    # consys_bathtub.print_mse_history()
-    # consys_bathtub.print_parameter_history()
+    # Initialize bathtub problem
+    bathtub = Plant(constants.bathtub_function, constants.H_0_bathtub)
 
-    # Cournot problem
+    # Initialize bathtub consys with classic PID controller and run
+    consys_bathtub_classic = Consys(bathtub, classicPID, constants.T_bathtub, MSE)
+    consys_bathtub_classic.simulate(constants.epochs,
+                                    constants.timesteps,
+                                    constants.noise_range,
+                                    constants.U_bathtub_init)
+    consys_bathtub_classic.print_mse_history("consys_bathtub_classic - Bathtub")
+    consys_bathtub_classic.print_parameter_history("consys_bathtub_classic - Bathtub")
+
+    # Initialize bathtub consys with neural net PID controller and run
+    consys_bathtub_NN = Consys(bathtub, neuralnetPID, constants.T_bathtub, MSE)
+    consys_bathtub_NN.simulate(constants.epochs,
+                               constants.timesteps,
+                               constants.noise_range,
+                               constants.U_bathtub_init)
+    consys_bathtub_NN.print_mse_history("consys_bathtub_NN - Bathtub")
+
+    # Initialize cournot problem
     cournot = Plant(constants.cournot_function, constants.H_0_cournot)
-    consys_cournot = Consys(cournot, classicPID, constants.T_cournot, constants.MSE, state_eval=constants.cournot_eval)
-    consys_cournot.simulate(constants.epochs,
-                            constants.timesteps,
-                            constants.noise_range,
-                            constants.U_cournot_init)
-    consys_cournot.print_mse_history()
-    consys_cournot.print_parameter_history()
+
+    # Initialize cournot consys with classic PID controller and run
+    consys_cournot_classic = Consys(cournot, classicPID, constants.T_cournot, MSE,
+                                    state_eval=constants.cournot_eval)
+    consys_cournot_classic.simulate(constants.epochs,
+                                    constants.timesteps,
+                                    constants.noise_range,
+                                    constants.U_cournot_init)
+    consys_cournot_classic.print_mse_history("consys_cournot_classic - Cournot")
+    consys_cournot_classic.print_parameter_history("consys_cournot_classic - Cournot")
+
+    # Initialize cournot consys with neural net PID controller and run
+    consys_cournot_NN = Consys(cournot, neuralnetPID, constants.T_cournot, MSE,
+                               state_eval=constants.cournot_eval)
+    consys_cournot_NN.simulate(constants.epochs,
+                               constants.timesteps,
+                               constants.noise_range,
+                               constants.U_cournot_init)
+    consys_cournot_NN.print_mse_history("consys_cournot_NN - Cournot")
