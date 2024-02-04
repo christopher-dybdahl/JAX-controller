@@ -2,41 +2,44 @@ from jax import jit, value_and_grad
 
 from helpers import noise
 import matplotlib.pyplot as plt
-import jax.numpy as jnp
+
+
+def standard_eval(state):
+    return state
 
 
 class Consys:
-    def __init__(self, plant, controller, T, loss_function):
+    def __init__(self, plant, controller, T, loss_function, state_eval=standard_eval):
         self.plant = plant
         self.controller = controller
         self.T = T
         self.loss_function = loss_function
-        self.error_history = None
-        self.params_history = None
-        self.mse_history = None
+        self.state_eval = state_eval
+
         self.epochs = None
         self.timesteps = None
 
-    def reset(self):
-        self.error_history = jnp.array([])
-        self.params_history = []
-        self.mse_history = []
-        self.controller.reset_parameters()
-        self.reset_controller_plant()
+        self.params_history = None
+        self.loss_history = None
 
     def reset_controller_plant(self):
         self.controller.reset_error_history()
         self.plant.reset_state()
 
-    def simulate(self, epochs, timesteps, noise_range, error_init):
+    def simulate(self, epochs, timesteps, noise_range, U_init):
+        # Record epochs and timesteps
         self.epochs = epochs
         self.timesteps = timesteps
 
         # Reset controller parameters
-        self.reset()
+        self.params_history = []
+        self.loss_history = []
+        self.controller.reset_parameters()
+        self.reset_controller_plant()
 
         # Initialize gradient function with jax
-        gradient_function = value_and_grad(self.loss_function, argnums=2)
+        #  TODO: Jit
+        gradient_function = jit(value_and_grad(self._run_one_epoch, argnums=0))
 
         for epoch in range(self.epochs):
             # Reset other controller variables and plant state
@@ -45,45 +48,38 @@ class Consys:
             # Generate noise
             D = noise(noise_range, self.timesteps)
 
-            error = 0
-            # TODO: How to handle first error
+            # Compute value and gradients
+            parameters = self.controller.get_parameters()
+            loss, gradients = gradient_function(parameters, D, U_init)
 
-            for timestep, D_t in zip(range(self.timesteps), D):
-                # Update controller and plant
-                U = self.controller.update(error)
-                Y = self.plant.update(U, D_t)
-                error = self.T - Y
-
-                # Record error in history
-                self.error_history = jnp.append(self.error_history, error)
-
-            # Declare some variables for readability
-            model_function = self.controller.controller_function
-            X = self.error_history
-            w = self.controller.parameters
-            y_true = self.T
-
-            # Compute MSE
-            mse = self.loss_function(model_function, X, w, self.T)
-            self.mse_history.append(mse)
-
-            # Compute gradients
-            avg_error, gradients = gradient_function(model_function, X, w, y_true)
+            # Record error
+            self.loss_history.append(loss)
 
             # Update controller parameters using gradient descent
             self.controller.update_params(gradients)
-            self.params_history.append(self.controller.parameters)
-            print(self.params_history)
-            # TODO: Check if correct MSE computing and gradient descent
+            print(f"Controller parameters: {self.controller.parameters}")
+            self.params_history.append(self.controller.get_parameters())
 
-        return U, Y
+        return self
+
+    def _run_one_epoch(self, parameters, D, U_init):
+
+        U = U_init
+        for _, D_t in zip(range(self.timesteps), D):
+            # Update controller and plant, and evaluate error
+            Y = self.plant.update(U, D_t)
+            error_t = self.T - self.state_eval(Y)
+            U = self.controller.update(parameters, error_t)
+
+        loss = self.loss_function(self.controller.get_error_history())
+
+        return loss
 
     def print_mse_history(self):
-        plt.plot(self.mse_history)
+        plt.plot(self.loss_history)
         plt.xlabel('Epoch')
         plt.ylabel('MSE')
         plt.title('Learning Progression')
-        plt.legend()
         plt.show()
 
     def print_parameter_history(self):
