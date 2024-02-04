@@ -1,3 +1,4 @@
+import numpy as np
 import jax.numpy as jnp
 
 # Epoch and timesteps
@@ -35,7 +36,25 @@ def classic_function(X, parameters):
 
 
 # Neural net controller
-# TODO: Implement neural net controller function
+def neural_net_function(X, layers=[5, 10, 5]):  # Activation?
+    error_history = X
+
+    if len(X) <= 2:
+        dE_dt = 0
+    else:
+        dE_dt = error_history[-1] - error_history[-2]
+
+    E = error_history[-1]
+    sum_E = jnp.sum(error_history)
+
+    sender = layers[0]
+    params = []
+    for receiver in layers[1:]:
+        weights = np.random.uniform(-.1, .1, (sender, receiver))
+        biases = np.random.uniform(-.1, .1, (1, receiver))
+        sender = receiver
+        params.append([weights, biases])
+    return U
 
 # Bathtub constants
 H_0_bathtub = 10
@@ -84,16 +103,16 @@ def cournot_function(U, D, state):
     return q_1_new, q_2_new
 
 
+def cournot_eval(Y):
+    q_1, q_2 = Y
+    return profit_function(q_1, q_2)
+
+
 def profit_function(q_1, q_2):
     q = q_1 + q_2
     p = p_max - q
     P_1 = q_1 * (p - c_m)
     # print(f"P_1: {P_1}")
     return P_1
-
-
-def cournot_eval(Y):
-    q_1, q_2 = Y
-    return profit_function(q_1, q_2)
 
 # TODO: New problem constants...
