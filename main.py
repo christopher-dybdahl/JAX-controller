@@ -52,3 +52,23 @@ if __name__ == '__main__':
                                constants.noise_range,
                                constants.U_cournot_init)
     consys_cournot_NN.print_mse_history("consys_cournot_NN - Cournot")
+
+    # Initialize battery problem
+    battery = Plant(constants.battery_function, constants.H_0_battery)
+
+    # Initialize battery consys with classic PID controller and run
+    consys_battery_classic = Consys(battery, classicPID, constants.T_battery, MSE)
+    consys_battery_classic.simulate(constants.epochs,
+                                    constants.timesteps,
+                                    constants.noise_range_battery,
+                                    constants.U_battery_init)
+    consys_battery_classic.print_mse_history("consys_battery_classic - Battery")
+    consys_battery_classic.print_parameter_history("consys_battery_classic - Battery")
+
+    # Initialize bathtub consys with neural net PID controller and run
+    consys_battery_NN = Consys(battery, neuralnetPID, constants.T_battery, MSE)
+    consys_battery_NN.simulate(constants.epochs,
+                               constants.timesteps,
+                               constants.noise_range_battery,
+                               constants.U_battery_init)
+    consys_battery_NN.print_mse_history("consys_battery_NN - Battery")

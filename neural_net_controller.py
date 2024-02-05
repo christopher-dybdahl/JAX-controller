@@ -34,6 +34,7 @@ class Neural_net_controller(Controller):
         # Initializing weights
         sender = layers[0]
         parameters = []
+        # TODO: Create parameter in constant for range of initial weights and biases
         for receiver in layers[1:]:
             weights = jnp.asarray(np.random.uniform(-.1, .1, (sender, receiver)))
             biases = jnp.asarray(np.random.uniform(-.1, .1, (1, receiver)))

@@ -28,17 +28,17 @@ def input_processor(X):
 classic_init_param = jnp.asarray([0.1, 0.1, 0.1])
 
 # Neural net controller parameters
-activation_functions = [sigmoid, ReLU, ReLU]
+activation_functions = [sigmoid, tanh, ReLU]
 layers = [3, 5, 8, 1]
 
 # Bathtub parameters
 H_0_bathtub = 10
+U_bathtub_init = 1
+T_bathtub = H_0_bathtub
 A = 10
 c = 100
 C = A / c
 g = 9.81
-T_bathtub = H_0_bathtub
-U_bathtub_init = 1
 
 
 # Bathtub input functions
@@ -49,10 +49,10 @@ def bathtub_function(U, D, height):
 
 # Cournot parameters
 H_0_cournot = 0.1, 0.1
+U_cournot_init = 0
+T_cournot = 1
 p_max = 2
 c_m = 0.1
-T_cournot = 1
-U_cournot_init = 0
 q_1_lower = 0
 q_1_upper = 1
 q_2_lower = 0
@@ -87,4 +87,17 @@ def profit_function(q_1, q_2):
     P_1 = q_1 * (p - c_m)
     return P_1
 
-# TODO: New problem constants...
+
+# Battery parameters
+noise_range_battery = (-1, 1)
+H_0_battery = 0.6
+U_battery_init = 0
+T_battery = 0.8
+I = 10
+C_battery = 100
+
+
+# Battery functions
+def battery_function(U, D, charge):
+    charge_new = charge + (U + I + D) / C_battery
+    return charge_new
