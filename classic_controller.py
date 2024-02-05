@@ -14,6 +14,9 @@ class Classic_controller(Controller):
         self.parameters -= jnp.multiply(self.learning_rate, gradients)
 
     def update(self, parameters, error):
+        # Record error
         self.error_history = jnp.append(self.error_history, error)
+
+        # Process input and compute output
         U = jnp.dot(parameters, self.input_processor(self.error_history))
         return U

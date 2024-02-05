@@ -37,6 +37,9 @@ class Consys:
         self.controller.reset_parameters()
         self.reset_controller_plant()
 
+        # Record initial parameters
+        self.params_history.append(self.controller.get_parameters())
+
         # Initialize gradient function with jax
         gradient_function = jit(value_and_grad(self._run_one_epoch, argnums=0))
 
@@ -81,9 +84,11 @@ class Consys:
         plt.title(f'Learning Progression - {title}')
         plt.show()
 
-    def print_parameter_history(self, title):
+    def print_parameter_history(self, title, legends=None):
         plt.plot(self.params_history)
         plt.xlabel('Epoch')
         plt.ylabel('Y')
+        if legends is not None:
+            plt.legend(legends)
         plt.title(f'Control Parameters - {title}')
         plt.show()

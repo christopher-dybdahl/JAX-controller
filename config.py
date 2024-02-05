@@ -1,13 +1,14 @@
 import jax.numpy as jnp
-from helpers import sigmoid, tanh, ReLU
 
-# Epoch and timesteps
+from classic_controller import Classic_controller
+from helpers import sigmoid, tanh, ReLU
+from neural_net_controller import Neural_net_controller
+from plant import Plant
+
+# General functions and parameters
 epochs = 500
 timesteps = 20
-
-# Controller functions and parameters
 learning_rate = 0.5
-noise_range = (-0.01, 0.01)
 
 
 def input_processor(X):
@@ -24,16 +25,20 @@ def input_processor(X):
     return jnp.array([E, dE_dt, sum_E])
 
 
-# Classic controller parameters
+# Classic controller
 classic_init_param = jnp.asarray([0.1, 0.1, 0.1])
+classicPID = Classic_controller(classic_init_param, input_processor, learning_rate)
 
-# Neural net controller parameters
+# Neural network controller
+parameter_range = (-0.1, 0.1)
 activation_functions = [sigmoid, tanh, ReLU]
 layers = [3, 5, 8, 1]
+neuralnetPID = Neural_net_controller(input_processor, learning_rate, layers, parameter_range, activation_functions)
 
-# Bathtub parameters
+# Bathtub model
+noise_range_bathtub = (-0.1, 0.1)
 H_0_bathtub = 10
-U_bathtub_init = 1
+U_init_bathtub = 1
 T_bathtub = H_0_bathtub
 A = 10
 c = 100
@@ -41,15 +46,17 @@ C = A / c
 g = 9.81
 
 
-# Bathtub input functions
 def bathtub_function(U, D, height):
     height_new = height + (U + D - C * jnp.sqrt(2 * g * height)) / A
     return height_new
 
 
-# Cournot parameters
+bathtub = Plant(bathtub_function, H_0_bathtub)
+
+# Cournot model
+noise_range_cournot = (-0.1, 0.1)
 H_0_cournot = 0.1, 0.1
-U_cournot_init = 0
+U_init_cournot = 0
 T_cournot = 1
 p_max = 2
 c_m = 0.1
@@ -59,9 +66,8 @@ q_2_lower = 0
 q_2_upper = 1
 
 
-# Cournot functions
-def cournot_function(U, D, state):
-    q_1, q_2 = state
+def cournot_function(U, D, productions):
+    q_1, q_2 = productions
 
     q_1_new = U + q_1
     q_2_new = D + q_2
@@ -76,11 +82,6 @@ def cournot_function(U, D, state):
     return q_1_new, q_2_new
 
 
-def cournot_eval(Y):
-    q_1, q_2 = Y
-    return profit_function(q_1, q_2)
-
-
 def profit_function(q_1, q_2):
     q = q_1 + q_2
     p = p_max - q
@@ -88,10 +89,17 @@ def profit_function(q_1, q_2):
     return P_1
 
 
-# Battery parameters
+def cournot_eval(Y):
+    q_1, q_2 = Y
+    return profit_function(q_1, q_2)
+
+
+cournot = Plant(cournot_function, H_0_cournot)
+
+# Battery model
 noise_range_battery = (-1, 1)
 H_0_battery = 0.6
-U_battery_init = 0
+U_init_battery = 0
 T_battery = 0.8
 I = 10
 C_battery = 100
@@ -101,3 +109,6 @@ C_battery = 100
 def battery_function(U, D, charge):
     charge_new = charge + (U + I + D) / C_battery
     return charge_new
+
+
+battery = Plant(battery_function, H_0_battery)
