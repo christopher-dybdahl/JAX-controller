@@ -7,6 +7,9 @@ class Plant(object):
     def reset_state(self):
         self.state = self.state_init
 
+    def get_state(self):
+        return self.state
+
     def update(self, U, D):
         Y = self.state_function(U, D, self.state)
         self.state = Y

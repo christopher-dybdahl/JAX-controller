@@ -1,3 +1,4 @@
+import consys
 from config import classicPID, neuralnetPID, epochs, timesteps, bathtub, noise_range_bathtub, U_init_bathtub, T_bathtub
 from consys import Consys
 from helpers import MSE

@@ -21,6 +21,7 @@ class Consys:
 
         self.params_history = None
         self.loss_history = None
+        self.state_history = []
 
     def reset_controller_plant(self):
         self.controller.reset_error_history()
@@ -62,6 +63,7 @@ class Consys:
 
             # Record parameters
             self.params_history.append(self.controller.get_parameters())
+            self.state_history.append(self.plant.get_state())
 
     def _run_one_epoch(self, parameters, D, U_init):
 
@@ -91,4 +93,11 @@ class Consys:
         if legends is not None:
             plt.legend(legends)
         plt.title(f'Control Parameters - {title}')
+        plt.show()
+
+    def print_state_history(self):
+        plt.plot(self.state_history)
+        plt.xlabel('Epoch')
+        plt.ylabel('MSE')
+        plt.title(f'Learning Progression - Plant State')
         plt.show()

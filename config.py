@@ -6,9 +6,9 @@ from neural_net_controller import Neural_net_controller
 from plant import Plant
 
 # General functions and parameters
-epochs = 500
-timesteps = 20
-learning_rate = 0.5
+epochs = 1000
+timesteps = 20 # Use 5 for cournot, 20 else
+learning_rate = 0.1
 
 
 def input_processor(X):
@@ -26,11 +26,11 @@ def input_processor(X):
 
 
 # Classic controller
-classic_init_param = jnp.asarray([0.1, 0.1, 0.1])
+classic_init_param = jnp.asarray([0.5, 0.5, 0.5]) # Use [0.5, 0.5, 0.5] for bathtub
 classicPID = Classic_controller(classic_init_param, input_processor, learning_rate)
 
 # Neural network controller
-parameter_range = (-0.1, 0.1)
+parameter_range = (0, 0.2)
 activation_functions = [sigmoid, tanh, ReLU]
 layers = [3, 5, 8, 1]
 neuralnetPID = Neural_net_controller(input_processor, learning_rate, layers, parameter_range, activation_functions)
@@ -54,11 +54,11 @@ def bathtub_function(U, D, height):
 bathtub = Plant(bathtub_function, H_0_bathtub)
 
 # Cournot model
-noise_range_cournot = (-0.1, 0.1)
-H_0_cournot = 0.1, 0.1
+noise_range_cournot = (-0.01, 0.01)
+H_0_cournot = 0.2, 0.2
 U_init_cournot = 0
-T_cournot = 1
-p_max = 2
+T_cournot = 1.5
+p_max = 3
 c_m = 0.1
 q_1_lower = 0
 q_1_upper = 1
@@ -97,8 +97,8 @@ def cournot_eval(Y):
 cournot = Plant(cournot_function, H_0_cournot)
 
 # Battery model
-noise_range_battery = (-1, 1)
-H_0_battery = 0.6
+noise_range_battery = (-0.1, 0.1)
+H_0_battery = 0.7
 U_init_battery = 0
 T_battery = 0.8
 I = 10
