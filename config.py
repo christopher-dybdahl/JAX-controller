@@ -7,7 +7,7 @@ from plant import Plant
 
 # General functions and parameters
 epochs = 1000
-timesteps = 20 # Use 5 for cournot, 20 else
+timesteps = 3 # Use 3 for cournot, 20 else
 learning_rate = 0.1
 
 
@@ -26,17 +26,17 @@ def input_processor(X):
 
 
 # Classic controller
-classic_init_param = jnp.asarray([0.5, 0.5, 0.5]) # Use [0.5, 0.5, 0.5] for bathtub
+classic_init_param = jnp.asarray([0.1, 0.1, 0.1]) # Use [0.5, 0.5, 0.5] for bathtub
 classicPID = Classic_controller(classic_init_param, input_processor, learning_rate)
 
 # Neural network controller
-parameter_range = (0, 0.2)
-activation_functions = [sigmoid, tanh, ReLU]
-layers = [3, 5, 8, 1]
+parameter_range = (0.1, 0.2)
+activation_functions = [tanh, ReLU, sigmoid]
+layers = [3, 5, 5, 1]
 neuralnetPID = Neural_net_controller(input_processor, learning_rate, layers, parameter_range, activation_functions)
 
 # Bathtub model
-noise_range_bathtub = (-0.1, 0.1)
+noise_range_bathtub = (-0.01, 0.01)
 H_0_bathtub = 10
 U_init_bathtub = 1
 T_bathtub = H_0_bathtub
@@ -55,7 +55,7 @@ bathtub = Plant(bathtub_function, H_0_bathtub)
 
 # Cournot model
 noise_range_cournot = (-0.01, 0.01)
-H_0_cournot = 0.2, 0.2
+H_0_cournot = 0.3, 0.2
 U_init_cournot = 0
 T_cournot = 1.5
 p_max = 3

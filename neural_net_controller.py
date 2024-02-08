@@ -30,7 +30,8 @@ class Neural_net_controller(Controller):
 
         # Neural network forwarding
         activations = features
-        for (weights, biases), fun in zip(parameters, self.activation_functions):
+        for parameter, fun in zip(parameters, self.activation_functions):
+            weights, biases = parameter
             activations = fun(jnp.dot(activations, weights) + biases)
         return activations
 
