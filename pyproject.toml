@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "jax-controller"
+version = "0.1.0"
+description = ""
+authors = ["chrisdybdahl <chrisdybdahl@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+jax = "^0.7.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
